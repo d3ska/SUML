@@ -1,81 +1,65 @@
 import streamlit as st
 import pandas as pd
 import time
-import matplotlib as plt
-import os
-# zaczynamy od zaimportowania bibliotek
+from transformers import pipeline
 
-st.success('Gratulacje! Z powodzeniem uruchomiłeś aplikację')
-# streamlit jest wykorzystywany do tworzenia aplikacji
-# z tego powodu dobrą praktyką jest informowanie użytkownika o postępie, błędach, etc.
+# Tytuł aplikacji
+st.title('Eksplorator NLP: Analiza Wydźwięku i Tłumaczenie')
 
-# Inne przykłady do wypróbowania:
-# st.balloons() # animowane balony ;)
-# st.error('Błąd!') # wyświetla informację o błędzie
-# st.warning('Ostrzeżenie, działa, ale chyba tak sobie...')
-# st.info('Informacja...')
-# st.success('Udało się!')
-
-# st.spinner()
-# with st.spinner(text='Pracuję...'):
-    # time.sleep(2)
-    # st.success('Done')
-# możemy dzięki temu "ukryć" późniejsze ładowanie aplikacji
-
-st.title('Lab05. Streamlit')
-# title, jak sama nazwa wskazuje, używamy do wyświetlenia tytułu naszej aplikacji
-
+# Nagłówki
 st.header('Wprowadzenie do zajęć')
-# header to jeden z podtytułów wykorzystywnaych w Streamlit
-
 st.subheader('O Streamlit')
-# subheader to jeden z podtytułów wykorzystywnaych w Streamlit
-
 st.text('To przykładowa aplikacja z wykorzystaniem Streamlit')
-# text używamy do wyświetlenia dowolnego tekstu. Można korzystać z polskich znaków.
 
 st.write('Streamlit jest biblioteką pozwalającą na uruchomienie modeli uczenia maszynowego.')
-# write używamy również do wyświetlenia tekstu, różnica polega na formatowaniu.
-
 st.code("st.write()", language='python')
-# code może nam się czasami przydać, jeżeli chcielibyśmy pokazać np. klientowi fragment kodu, który wykorzystujemy w aplikacji
 
-with st.echo():
-    st.write("Echo")
-# możemy też to zrobić prościej używając echo - pokazujemy kod i równocześnie go wykonujemy
-
-df = pd.read_csv("DSP_4.csv", sep = ';')
+# Ładowanie pliku CSV
+df = pd.read_csv("DSP_4.csv", sep=';')
 st.dataframe(df)
-# musimy tylko pamiętać o właściwym określeniu separatora (w tym wypadku to średnik)
-# masz problem z otworzeniem pliku? sprawdź w jakim katalogu pracujesz i dodaj tam plik (albo co bardziej korzystne - zmień katalog pracy)
-# os.getcwd() # pokaż bieżący katalog
-# os.chdir("") # zmiana katalogu
 
 st.header('Przetwarzanie języka naturalnego')
 
-import streamlit as st
-from transformers import pipeline
-
+# Wybór opcji
 option = st.selectbox(
     "Opcje",
     [
         "Wydźwięk emocjonalny tekstu (eng)",
-        "???",
+        "Tłumaczenie tekstu (eng -> ger)"
     ],
 )
 
 if option == "Wydźwięk emocjonalny tekstu (eng)":
     text = st.text_area(label="Wpisz tekst")
     if text:
-        classifier = pipeline("sentiment-analysis")
-        answer = classifier(text)
-        st.write(answer)
+        with st.spinner("Analizuję wydźwięk emocjonalny..."):
+            try:
+                classifier = pipeline("sentiment-analysis")
+                answer = classifier(text)
+                st.success("Analiza zakończona pomyślnie!")
+                st.write(answer)
+            except Exception as e:
+                st.error(f'Błąd podczas analizy')
+elif option == "Tłumaczenie tekstu (eng -> ger)":
+    text = st.text_area(label="Wpisz tekst po angielsku")
+    if text:
+        with st.spinner("Tłumaczę..."):
+            try:
+                translator = pipeline("translation_en_to_de")
+                translation = translator(text)
+                st.success("Tłumaczenie zakończone pomyślnie!")
+                st.write(translation[0]['translation_text'])
+            except Exception as e:
+                st.error(f'Błąd podczas tłumaczenia')
 
-st.subheader('Zadanie do wykonania')
-st.write('Wykorzystaj Huggin Face do stworzenia swojej własnej aplikacji tłumaczącej tekst z języka angielskiego na język niemiecki. Zmodyfikuj powyższy kod dodając do niego kolejną opcję, tj. tłumaczenie tekstu. Informacje potrzebne do zmodyfikowania kodu znajdziesz na stronie Huggin Face - https://huggingface.co/docs/transformers/index')
-st.write('🐞 Dodaj właściwy tytuł do swojej aplikacji, może jakieś grafiki?')
-st.write('🐞 Dodaj krótką instrukcję i napisz do czego służy aplikacja')
-st.write('🐞 Wpłyń na user experience, dodaj informacje o ładowaniu, sukcesie, błędzie, itd.')
-st.write('🐞 Na końcu umieść swój numer indeksu')
-st.write('🐞 Stwórz nowe repozytorium na GitHub, dodaj do niego swoją aplikację, plik z wymaganiami (requirements.txt)')
-st.write('🐞 Udostępnij stworzoną przez siebie aplikację (https://share.streamlit.io) a link prześlij do prowadzącego')
+st.subheader('Instrukcja użytkowania')
+st.write("""
+Aplikacja służy do analizy wydźwięku emocjonalnego tekstu oraz tłumaczenia tekstu z języka angielskiego na niemiecki.
+- Wybierz odpowiednią opcję z listy.
+- Wpisz tekst do analizy lub tłumaczenia.
+- Poczekaj na wynik działania modelu.
+""")
+
+st.subheader('Informacje dodatkowe')
+st.write('Numer indeksu: 22176')
+st.write('[Repozytorium](https://github.com/d3ska/SUML)')
