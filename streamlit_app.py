@@ -12,7 +12,6 @@ st.subheader('O Streamlit')
 st.text('To przykładowa aplikacja z wykorzystaniem Streamlit')
 
 st.write('Streamlit jest biblioteką pozwalającą na uruchomienie modeli uczenia maszynowego.')
-st.code("st.write()", language='python')
 
 # Ładowanie pliku CSV
 df = pd.read_csv("DSP_4.csv", sep=';')
